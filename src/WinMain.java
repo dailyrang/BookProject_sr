@@ -20,6 +20,10 @@ import javax.swing.JTable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import javax.swing.JPopupMenu;
+import java.awt.Component;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class WinMain extends JDialog {
 	private JTable table;
@@ -101,6 +105,17 @@ public class WinMain extends JDialog {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				
+				
+			}
+		});
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+		addPopup(table, popupMenu);
+		
+		JMenuItem mnuDetail = new JMenuItem("자세히...");
+		mnuDetail.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
 				String sISBN = table.getValueAt(row, 0).toString();
 				
@@ -113,9 +128,15 @@ public class WinMain extends JDialog {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 			}
 		});
+		popupMenu.add(mnuDetail);
+		
+		JMenuItem mnuDelete = new JMenuItem("삭제...");
+		popupMenu.add(mnuDelete);
+		
+		JMenuItem mnuUpdate = new JMenuItem("변경...");
+		popupMenu.add(mnuUpdate);
 		
 		scrollPane.setViewportView(table);
 		
@@ -144,4 +165,28 @@ public class WinMain extends JDialog {
 		}
 	}
 
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					JTable source = (JTable)e.getSource();
+					int row = source.rowAtPoint(e.getPoint());
+					int column = source.columnAtPoint(e.getPoint());
+					
+					if(!source.isRowSelected(row))  // 행이 선택되지 않았다면 그 행을 선택한다.
+						source.changeSelection(row, column, false, false);
+					
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
 }

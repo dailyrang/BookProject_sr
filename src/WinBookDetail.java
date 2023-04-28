@@ -156,10 +156,13 @@ public class WinBookDetail extends JDialog {
 				taDescription.setText(rs.getString("description"));
 				
 				String imgUrl = rs.getString("image");
-				URL url = new URL(imgUrl);
-				Image image = ImageIO.read(url);
-				image = image.getScaledInstance(200, 250, Image.SCALE_SMOOTH);
-				lblImage.setIcon(new ImageIcon(image));
+				String html = "<html><body><img src='" + imgUrl + "' width=200 height=250></body></html>";
+				lblImage.setText(html);
+				
+//				URL url = new URL(imgUrl);
+//				Image image = ImageIO.read(url);
+//				image = image.getScaledInstance(200, 250, Image.SCALE_SMOOTH);
+//				lblImage.setIcon(new ImageIcon(image));
 			}
 		} catch (ClassNotFoundException | SQLException e1) {
 			e1.printStackTrace();
