@@ -14,11 +14,15 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Color;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class WinBookDetail extends JDialog {
 	private JTextField tfISBN;
@@ -29,6 +33,7 @@ public class WinBookDetail extends JDialog {
 	private JTextField tfDiscount;
 	private JTextArea taDescription;
 	private JLabel lblImage;
+	private String imgUrl;
 
 	/**
 	 * Launch the application.
@@ -59,6 +64,13 @@ public class WinBookDetail extends JDialog {
 		panel.setLayout(null);
 		
 		lblImage = new JLabel("");
+		lblImage.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String html = "<html><body><img src='" + imgUrl + "'></body></html>";
+				JOptionPane.showMessageDialog(null, html);
+			}
+		});
 		lblImage.setOpaque(true);
 		lblImage.setBackground(new Color(255, 255, 0));
 		lblImage.setBounds(12, 10, 200, 250);
@@ -155,7 +167,8 @@ public class WinBookDetail extends JDialog {
 				tfDiscount.setText(rs.getString("discount"));
 				taDescription.setText(rs.getString("description"));
 				
-				String imgUrl = rs.getString("image");
+				imgUrl = rs.getString("image");
+				
 				String html = "<html><body><img src='" + imgUrl + "' width=200 height=250></body></html>";
 				lblImage.setText(html);
 				
