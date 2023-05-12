@@ -42,6 +42,7 @@ public class Book extends JPanel {
 	private JButton btnCalendar;
 	private JComboBox cbPublisher;
 	private String filePath;
+	private String strImage;
 	
 	public Book() {
 		setBackground(new Color(192, 192, 192));
@@ -52,19 +53,8 @@ public class Book extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getClickCount() == 2) { // 더블클릭하여 그림 선택
-					JFileChooser chooser = new JFileChooser("C:\\FileIO\\사진\\");
-					FileNameExtensionFilter filter = 
-							new FileNameExtensionFilter("그림파일", "jpg","png","gif");
-					chooser.setFileFilter(filter);
-					if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-						filePath = chooser.getSelectedFile().getPath();
-						ImageIcon icon = new ImageIcon(filePath);
-						Image image = icon.getImage();
-						image = image.getScaledInstance(200, 250, Image.SCALE_SMOOTH);
-						icon = new ImageIcon(image);
-						lblImage.setIcon(icon);
-						filePath = filePath.replaceAll("\\\\", "\\\\\\\\");
-					}
+					strImage = JOptionPane.showInputDialog("책의 URL을 입력하시오");
+					lblImage.setText("<html><body><img src='" + strImage + "' width=200 height=250></body></html>");
 				}
 			}
 		});
@@ -175,12 +165,17 @@ public class Book extends JPanel {
 		btnType = new JButton("도서 추가");
 		btnType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(btnType.getText().equals("도서 추가"))
+				if(btnType.getText().equals("도서 추가")) {
 					insertBook();
-				else if(btnType.getText().equals("도서 삭제"))
-					; //deleteBook();
-				else if(btnType.getText().equals("도서 변경"))
-					; //updateBook();
+				}
+				else if(btnType.getText().equals("도서 삭제")) {
+					if(JOptionPane.showConfirmDialog(null, "정말 삭제할까요?") == JOptionPane.YES_OPTION)
+						deleteBook();
+				}
+				else {
+					if(JOptionPane.showConfirmDialog(null, "정말 변경할까요?") == JOptionPane.YES_OPTION)
+						updateBook();
+				}
 			}
 		});
 		btnType.setBounds(369, 219, 115, 66);
@@ -216,6 +211,55 @@ public class Book extends JPanel {
 		
 		changeDisComps();
 	}
+	protected void updateBook() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sqlDB","root","1234");						
+			
+//			String sql = "update bookTBL set title=?, author=?, publisher=?, image=?, pDate=?, discount=?, description=? where isbn=?";	
+//						
+//			PreparedStatement pstmt = con.prepareStatement(sql);
+//			pstmt.setString(1, tfTitle.getText());
+//			pstmt.setString(2, tfAuthor.getText());
+//			pstmt.setString(3, cbPublisher.getSelectedItem().toString());
+//			pstmt.setString(4, "http://");
+//			pstmt.setString(5, tfPdate.getText());
+//			pstmt.setString(6, tfDiscount.getText());
+//			pstmt.setString(7, taDescription.getText());
+//			pstmt.setString(8, tfISBN.getText());
+//			pstmt.executeUpdate();
+			
+			String sql = "update bookTBL set title='" + tfTitle.getText() + "', author='" + tfAuthor.getText();
+			sql = sql + "', publisher='" + cbPublisher.getSelectedItem().toString() + "', image='" + strImage;
+			sql = sql + "', pDate='" + tfPdate.getText() + "', discount=" + tfDiscount.getText();
+			sql = sql + ", description='" + taDescription.getText() +  "' where isbn='";
+			sql = sql + tfISBN.getText() + "'";
+			
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate(sql);
+			
+			
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}		
+	}
+	protected void deleteBook() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sqlDB","root","1234");						
+			
+			String sql = "delete from bookTBL where isbn='" + tfISBN.getText() + "'";		
+			Statement stmt = con.createStatement();
+			
+			stmt.executeUpdate(sql);			
+			
+			
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 	protected void insertBook() {
 		// PreparedStatement 이용	
 		try {
@@ -239,12 +283,7 @@ public class Book extends JPanel {
 			pstmt.setString(6, tfPdate.getText());
 			pstmt.setInt(7, Integer.parseInt(tfDiscount.getText().replaceAll(",", "")));
 			pstmt.setString(8, taDescription.getText());
-			
-			
-			if(pstmt.executeUpdate() != 1 )
-				JOptionPane.showMessageDialog(null, "질의어 오류인것 같습니다. \n확인하세요!!!");
-			
-			
+			pstmt.executeUpdate();
 		} catch (ClassNotFoundException | SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -363,6 +402,54 @@ public class Book extends JPanel {
 		}else if(number==3) { //변경
 			btnType.setText("도서 변경");
 			btnDup.setEnabled(false);
+		}
+	}
+	public Book(int number, String sISBN) {
+		this(number);
+		tfISBN.setText(sISBN);
+		tfISBN.setEnabled(false); // 삭제, 변경시는 활성화할 필요가 없기 때문에.
+		btnDup.setVisible(false);
+		tfTitle.setEnabled(true);
+		tfAuthor.setEnabled(true);		
+		cbPublisher.setEnabled(true);
+		tfPdate.setEnabled(true);
+		tfDiscount.setEnabled(true);
+		taDescription.setEnabled(true);
+		
+		if(number==2)
+			btnCalendar.setVisible(false);
+		else if(number==3) {
+			btnCalendar.setVisible(true);
+			btnCalendar.setEnabled(true);
+		}
+		
+		btnType.setEnabled(true);
+		
+		showRecord(sISBN);
+	}
+	private void showRecord(String sISBN) {
+		//DB 연동
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sqlDB","root","1234");						
+			Statement stmt = con.createStatement();
+			
+			String sql = "select * from bookTBL where isbn='" + sISBN + "'";
+			ResultSet rs = stmt.executeQuery(sql);
+				
+			while(rs.next()) {
+				tfTitle.setText(rs.getString("title"));
+				tfAuthor.setText(rs.getString("author"));
+				cbPublisher.setSelectedItem(rs.getString("publisher"));
+				strImage = rs.getString("image");
+				lblImage.setText("<html><body><img src='" + strImage + "' width=200 height=250></body></html>");
+				tfPdate.setText(rs.getString("pDate"));
+				tfDiscount.setText(rs.getString("discount"));
+				taDescription.setText(rs.getString("description"));
+			}
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 }

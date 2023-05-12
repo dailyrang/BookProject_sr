@@ -25,10 +25,14 @@ public class WinBookDelete extends JDialog {
 	 * Create the dialog.
 	 */
 	public WinBookDelete() {
+		this("");
+	}
+
+	public WinBookDelete(String sISBN) {
 		setTitle("도서 삭제");
 		setBounds(100, 100, 763, 591);
 
-		Book book = new Book(2);
+		Book book = new Book(2, sISBN);
 		getContentPane().add(book);
 	}
 
