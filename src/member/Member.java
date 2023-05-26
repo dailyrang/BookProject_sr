@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -256,12 +257,20 @@ public class Member extends JPanel {
 		chkSolarLunar = new JCheckBox("양력");
 		chkSolarLunar.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
+				Calendar today = Calendar.getInstance();
+				String sYear = Integer.toString(today.get(Calendar.YEAR));
 				if(chkSolarLunar.isSelected()) {
 					chkSolarLunar.setText("음력");
-					tfSolarBirth.setText("나중에...");
+					
+					String  sLrrDate = tfBirth.getText().replace("-", "");
+					sLrrDate = sLrrDate.replace(sLrrDate.substring(0,4), sYear);
+					int   iLeapMonth = 0; // 평달 : 0, 윤달 : 1				 
+					String retSlrDate = DateUtil.toSolar(sLrrDate, iLeapMonth);		
+					
+					tfSolarBirth.setText(retSlrDate.substring(0,4) + "-" +retSlrDate.substring(4,6)+"-" + retSlrDate.substring(6,8));
 				}else {
 					chkSolarLunar.setText("양력");
-					tfSolarBirth.setText(tfBirth.getText());
+					tfSolarBirth.setText(tfBirth.getText().replace(tfBirth.getText().substring(0,4), sYear));
 				}
 				tfAddress.requestFocus();
 			}
@@ -304,9 +313,25 @@ public class Member extends JPanel {
 				winCalendar.setModal(true);
 				winCalendar.setVisible(true);
 				tfBirth.setText(winCalendar.getDate());
-				tfSolarBirth.setText(winCalendar.getDate());
 				
+				Calendar today = Calendar.getInstance();		
+				String sYear = Integer.toString(today.get(Calendar.YEAR));
+				
+				if(chkSolarLunar.isSelected()) {
+					chkSolarLunar.setText("음력");
+					
+					String  sLrrDate = tfBirth.getText().replace("-", "");
+					sLrrDate = sLrrDate.replace(sLrrDate.substring(0,4), sYear);
+					int   iLeapMonth = 0; // 평달 : 0, 윤달 : 1				 
+					String retSlrDate = DateUtil.toSolar(sLrrDate, iLeapMonth);		
+					
+					tfSolarBirth.setText(retSlrDate.substring(0,4) + "-" +retSlrDate.substring(4,6)+"-" + retSlrDate.substring(6,8));
+				}else {
+					chkSolarLunar.setText("양력");
+					tfSolarBirth.setText(tfBirth.getText().replace(tfBirth.getText().substring(0,4), sYear));
+				}
 				tfAddress.requestFocus();
+				
 			}
 		});
 		btnCalendar.setBounds(257, 229, 97, 23);
