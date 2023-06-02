@@ -25,6 +25,7 @@ import member.WinMemberSelect;
 import member.WinMemberUpdate;
 import rental.WinRentalList;
 import rental.WinReturnList;
+import util.WinMp3Player;
 
 import java.awt.BorderLayout;
 import javax.swing.JButton;
@@ -48,6 +49,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.SwingConstants;
 import java.awt.Font;
+import javax.swing.JProgressBar;
 
 public class WinMain extends JDialog {
 	private JTable table;
@@ -67,12 +69,10 @@ public class WinMain extends JDialog {
 				dtm.setColumnIdentifiers(columns);
 				showRecords(dtm);
 			}
-			public void windowLostFocus(WindowEvent e) {
-			}
-		});
-		addFocusListener(new FocusAdapter() {
+
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void windowLostFocus(WindowEvent e) {
+				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -233,6 +233,19 @@ public class WinMain extends JDialog {
 			}
 		});
 		mnuRentalReturn.add(mnuReturnList);
+		
+		JMenu mnuMusic = new JMenu("음악");
+		menuBar.add(mnuMusic);
+		
+		JMenuItem mnuMp3Player = new JMenuItem("MP3플레이어...");
+		mnuMp3Player.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				WinMp3Player winMp3Player = new WinMp3Player();
+				//winMp3Player.setModal(true);
+				winMp3Player.setVisible(true);
+			}
+		});
+		mnuMusic.add(mnuMp3Player);
 		
 		JMenu mnNewMenu = new JMenu("Help");
 		mnNewMenu.setMnemonic('H');

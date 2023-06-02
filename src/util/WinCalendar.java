@@ -11,9 +11,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 import javax.swing.JTextField;
+
+import member.DateUtil;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
@@ -63,7 +67,7 @@ public class WinCalendar extends JDialog {
 	 */
 	public WinCalendar() {
 		setTitle("달력(1923년~2123년)");
-		setBounds(100, 100, 450, 392);
+		setBounds(100, 100, 743, 399);
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.NORTH);
@@ -243,8 +247,7 @@ public class WinCalendar extends JDialog {
 			JButton btn = new JButton("");
 			panelCalendar.add(btn);			
 			btn.setVisible(false);
-		}
-	    
+		}	    
 	      
 		// 해당하는 달의 마지막 날짜까지 버튼을 생성한다.
 		
@@ -252,14 +255,54 @@ public class WinCalendar extends JDialog {
 		if(month==2 &&  (year%4==0 && year%100!=0 || year%400==0) )
 			last++;
 		for(int i=1;i<=last;i++) {  // 1일부터 해당월의 마지막 날짜를 출력한다.			
-			JButton btn = new JButton(i + "");
+			//2023.5.23 추가
+			String	sSlrDate = "" + year + (month<10?"0":"") + month + (i<10?"0":"")+i;
+			HashMap hm = DateUtil.toLunar(sSlrDate);			 
+			String  retLrrDate   = hm.get("day").toString();
+			retLrrDate = Integer.parseInt(retLrrDate.substring(4,6)) + "." + Integer.parseInt(retLrrDate.substring(6));
+			
+			String [][]holydays = {
+					{"0101","신정"},
+					{"0301","삼일절"},
+					{"0505","어린이날"},
+					{"0606","현충일"},
+					{"0815","광복절"},
+					{"1003","개천절"},
+					{"1009","한글날"},
+					{"1225","크리스마스"},
+					{"1.1","설날"},
+					{"4.8","석가탄신일"},
+					{"8.15","추석"}
+			};
+			String sMonthDay = (month<10?"0":"") + month + (i<10?"0":"") +i;
+			int blueDay = 0;
+			for(int j=0; j<11;j++) //양력 공휴일
+				if(holydays[j][0].equals(sMonthDay)) {
+					retLrrDate = holydays[j][1];
+					blueDay = Integer.parseInt(holydays[j][0].substring(2));
+				}
+			for(int j=0; j<11;j++)//음력 공휴일
+				if(holydays[j][0].equals(retLrrDate)) {
+					System.out.println(retLrrDate);
+					retLrrDate = holydays[j][1];
+					blueDay = i;
+				}
+			JButton btn = new JButton(i + "(" + retLrrDate + ")");
+			if(i==blueDay)
+				btn.setBackground(Color.yellow);
+			//2023.5.23
+			
 			btn.addActionListener(new ActionListener() {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					JButton btn1 = (JButton)e.getSource();
-					selectedDate = year + "-" + month + "-" + btn1.getText();
-					System.out.println(selectedDate);
+					// 25(4.5)
+					int day = Integer.parseInt(btn1.getText().substring(0,btn1.getText().indexOf("(")));
+					
+					selectedDate = year + "-" + (month < 10 ? "0" : "") + month + "-" + (day < 10 ? "0" : "") + day;
+					
+					//System.out.println(selectedDate);
 					dispose();
 				}
 			});

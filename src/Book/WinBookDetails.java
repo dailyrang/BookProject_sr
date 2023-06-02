@@ -57,7 +57,8 @@ public class WinBookDetails extends JDialog implements PropertyChangeListener{
 				else
 					tabbedPane.addTab(title, new Book(arrBook));
 				tabbedPane.setSelectedIndex(count-1);
-			}            
+			}    
+			tabbedPane.setSelectedIndex(0);  // 맨 앞 탭으로 이동
             return null;
         }
     }
