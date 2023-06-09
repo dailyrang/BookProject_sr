@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="C:/Users/ici/Downloads/JSplashScreen.jar"/>
 	<classpathentry kind="lib" path="C:/jlayer-1.0.1.jar/jlayer-1.0.1.jar"/>
 	<classpathentry kind="lib" path="C:/icu4j-4_8_1_1.jar"/>
+	<classpathentry kind="lib" path="C:/jaudiotagger-2.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

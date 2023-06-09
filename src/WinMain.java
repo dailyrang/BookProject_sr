@@ -4,6 +4,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.swing.JDialog;
@@ -12,6 +14,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
+
+import com.ibm.icu.util.Calendar;
 
 import Book.WinBookDelete;
 import Book.WinBookDetail;
@@ -25,6 +29,7 @@ import member.WinMemberSelect;
 import member.WinMemberUpdate;
 import rental.WinRentalList;
 import rental.WinReturnList;
+import util.WinAir2048;
 import util.WinMp3Player;
 
 import java.awt.BorderLayout;
@@ -50,10 +55,13 @@ import java.awt.event.KeyEvent;
 import javax.swing.SwingConstants;
 import java.awt.Font;
 import javax.swing.JProgressBar;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
 
 public class WinMain extends JDialog {
 	private JTable table;
 	private JTextField tfMobile;
+	private JLabel lblCurrentTime;
 	private static JMenuItem mnuReturn;
 	private static JMenuItem mnuRent;
 
@@ -148,7 +156,7 @@ public class WinMain extends JDialog {
 		mnuAllShow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				WinBookDetails winBookDetails = new WinBookDetails();
-				winBookDetails.setModal(true);
+				//winBookDetails.setModal(true);
 				winBookDetails.setVisible(true);
 			}
 		});
@@ -246,6 +254,18 @@ public class WinMain extends JDialog {
 			}
 		});
 		mnuMusic.add(mnuMp3Player);
+		
+		JMenu mnuGame = new JMenu("게임");
+		menuBar.add(mnuGame);
+		
+		JMenuItem mnuAir2048 = new JMenuItem("air2048");
+		mnuAir2048.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				WinAir2048 dlg = new WinAir2048();
+				dlg.setVisible(true);
+			}
+		});
+		mnuGame.add(mnuAir2048);
 		
 		JMenu mnNewMenu = new JMenu("Help");
 		mnNewMenu.setMnemonic('H');
@@ -472,10 +492,34 @@ public class WinMain extends JDialog {
 		popupMenu.add(mnuReturn);
 		
 		scrollPane.setViewportView(table);
+		
+		JPanel panel = new JPanel();
+		getContentPane().add(panel, BorderLayout.SOUTH);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		lblCurrentTime = new JLabel("날짜 시간 정보:");
+		lblCurrentTime.setHorizontalAlignment(SwingConstants.LEFT);
+		panel.add(lblCurrentTime, BorderLayout.EAST);
+		
+		JLabel lblNewLabel = new JLabel("(주) ICI Corp.");
+		panel.add(lblNewLabel, BorderLayout.WEST);
 			
 		
+		new Timer().schedule(task, 0, 1000);
 	}
+	TimerTask task = new TimerTask() {
 
+		@Override
+		public void run() {
+			Calendar current = Calendar.getInstance();
+			int hour = current.get(Calendar.HOUR);
+			int minute = current.get(Calendar.MINUTE);
+			int second = current.get(Calendar.SECOND);
+			lblCurrentTime.setText(hour + "시" + minute + "분" + second + "초");
+		}
+		
+	};
+	
 	protected void updateRecord(String strISBN, String strID) {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
