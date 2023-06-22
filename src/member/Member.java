@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.im.InputContext;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -41,6 +42,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class Member extends JPanel {
 	private JTextField tfId;
@@ -168,6 +171,16 @@ public class Member extends JPanel {
 		add(lblName);
 		
 		tfName = new JTextField();
+		tfName.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+			           InputContext inCtx = tfName.getInputContext();  
+			           Character.Subset[] subset = { Character.UnicodeBlock.HANGUL_SYLLABLES }; 
+			           inCtx.setCharacterSubsets( subset ); 
+			    }catch (Exception x) { } 
+			}
+		});
 		tfName.setBackground(new Color(255, 255, 0));
 		tfName.addKeyListener(new KeyAdapter() {
 			@Override
@@ -194,6 +207,16 @@ public class Member extends JPanel {
 		add(lblEmail);
 		
 		tfEmail = new JTextField();
+		tfEmail.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+	                  InputContext inCtx = tfEmail.getInputContext();  
+	                  Character.Subset[] subset = null;  
+	                  inCtx.setCharacterSubsets( subset );  
+	              }catch (Exception x){} 
+			}
+		});
 		tfEmail.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -283,6 +306,16 @@ public class Member extends JPanel {
 		add(lblAddress);
 		
 		tfAddress = new JTextField();
+		tfAddress.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+		            InputContext inCtx = tfAddress.getInputContext();  
+		            Character.Subset[] subset = null;  
+		            inCtx.setCharacterSubsets( subset );  
+		        }catch (Exception x){} 
+			}
+		});
 		tfAddress.setColumns(10);
 		tfAddress.setBounds(81, 267, 301, 21);
 		add(tfAddress);
@@ -302,6 +335,16 @@ public class Member extends JPanel {
 		add(btnSearchAddress);
 		
 		tfAddressDetail = new JTextField();
+		tfAddressDetail.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+                    InputContext inCtx = tfName.getInputContext();  
+                    Character.Subset[] subset = { Character.UnicodeBlock.HANGUL_SYLLABLES }; 
+                    inCtx.setCharacterSubsets( subset ); 
+             }catch (Exception x) { } 
+			}
+		});
 		tfAddressDetail.setColumns(10);
 		tfAddressDetail.setBounds(81, 298, 301, 21);
 		add(tfAddressDetail);

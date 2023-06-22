@@ -20,6 +20,9 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Dialog.ModalExclusionType;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.FlowLayout;
 
 public class WinAir2048 extends JDialog {
 
@@ -81,6 +84,16 @@ public class WinAir2048 extends JDialog {
 		getContentPane().add(panel, BorderLayout.NORTH);
 		
 		cbNumber = new JComboBox();
+		cbNumber.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				init();
+				pickOne();
+				showMatrix();
+				getContentPane().requestFocus();
+			}
+		});
+		FlowLayout fl_panel = new FlowLayout(FlowLayout.CENTER, 5, 5);
+		panel.setLayout(fl_panel);
 		cbNumber.setModel(new DefaultComboBoxModel(new String[] {"4", "5", "6"}));
 		cbNumber.setFont(new Font("굴림", Font.BOLD, 20));
 		panel.add(cbNumber);
@@ -223,6 +236,7 @@ public class WinAir2048 extends JDialog {
 		number = Integer.parseInt(cbNumber.getSelectedItem().toString());
 		panelAir2048.setLayout(new GridLayout(0, number, 10, 10));
 		Matrix = new int[number][number];
+		jumsu=0;
 		
 		for(int i=0;i<number;i++) {
 			for(int j=0;j<number;j++) {

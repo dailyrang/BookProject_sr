@@ -22,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.im.InputContext;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -32,6 +33,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class Book extends JPanel {
 	private JTextField tfISBN;
@@ -97,6 +100,16 @@ public class Book extends JPanel {
 		add(lblTitle);
 		
 		tfTitle = new JTextField();
+		tfTitle.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+                    InputContext inCtx = tfTitle.getInputContext();  
+                    Character.Subset[] subset = { Character.UnicodeBlock.HANGUL_SYLLABLES }; 
+                     inCtx.setCharacterSubsets( subset ); 
+             }catch (Exception x) { } 
+			}
+		});
 		tfTitle.setColumns(10);
 		tfTitle.setBounds(311, 60, 318, 21);
 		add(tfTitle);
@@ -106,6 +119,16 @@ public class Book extends JPanel {
 		add(lblAuthor);
 		
 		tfAuthor = new JTextField();
+		tfAuthor.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+                    InputContext inCtx = tfAuthor.getInputContext();  
+                    Character.Subset[] subset = { Character.UnicodeBlock.HANGUL_SYLLABLES }; 
+                     inCtx.setCharacterSubsets( subset ); 
+             }catch (Exception x) { } 
+			}
+		});
 		tfAuthor.setColumns(10);
 		tfAuthor.setBounds(311, 91, 318, 21);
 		add(tfAuthor);

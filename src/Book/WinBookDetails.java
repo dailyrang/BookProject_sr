@@ -8,6 +8,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -16,13 +18,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalExclusionType;
 
 public class WinBookDetails extends JDialog implements PropertyChangeListener{
 	
 	private ProgressMonitor progressMonitor;   
     private Task task;
 	private JTabbedPane tabbedPane;
-    
+    private int tabIdx = 0;
     class Task extends SwingWorker<Void, Void> {
         @Override
         public Void doInBackground() throws Exception {           
@@ -61,12 +64,27 @@ public class WinBookDetails extends JDialog implements PropertyChangeListener{
 			tabbedPane.setSelectedIndex(0);  // 맨 앞 탭으로 이동
             return null;
         }
+
+		@Override
+		protected void done() {
+			new Timer().schedule(taskSchedule, 0, 5000);
+		}
     }
 	
+    TimerTask taskSchedule = new TimerTask() {		
+		@Override
+		public void run() {
+			tabIdx++;
+			if(tabbedPane.getTabCount() == tabIdx)
+				tabIdx=0;
+			tabbedPane.setSelectedIndex(tabIdx);
+		}
+	};
 	/**
 	 * Create the dialog.
 	 */
 	public WinBookDetails() {
+		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		setTitle("모든 책 자세히 보기");
 		setBounds(100, 100, 766, 601);
 		

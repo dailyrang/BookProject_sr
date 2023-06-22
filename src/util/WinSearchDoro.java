@@ -19,8 +19,11 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.im.InputContext;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class WinSearchDoro extends JDialog {
 	private JTextField tfDoro;
@@ -58,6 +61,16 @@ public class WinSearchDoro extends JDialog {
 		getContentPane().add(panel, BorderLayout.NORTH);
 		
 		tfDoro = new JTextField();
+		tfDoro.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				try {  
+                    InputContext inCtx = tfDoro.getInputContext();  
+                    Character.Subset[] subset = { Character.UnicodeBlock.HANGUL_SYLLABLES }; 
+                     inCtx.setCharacterSubsets( subset ); 
+             }catch (Exception x) { } 
+			}
+		});
 		tfDoro.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {

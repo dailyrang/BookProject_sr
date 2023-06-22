@@ -11,6 +11,7 @@ import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
@@ -19,12 +20,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
@@ -54,6 +61,8 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
+import java.awt.Font;
+import javax.swing.AbstractListModel;
 
 public class WinMp3Player extends JDialog {
 	private JTextField tfFilePath;
@@ -74,9 +83,15 @@ public class WinMp3Player extends JDialog {
 	private JSpinner spinnerHour;
 	private JSpinner spinnerMinute;
 	private JSpinner spinnerSecond;
-	private JTextArea taLyrics;
 	private JLabel lblSeconds;
+	private JList taLyrics;
+	
+	private int seq = 0;
+	private JLabel lblLyrics;
 
+	
+	DefaultListModel model ;
+	private JList listInterval;
 	/**
 	 * Create the dialog.
 	 */
@@ -91,15 +106,21 @@ public class WinMp3Player extends JDialog {
 			}
 		});
 		setTitle("Mp3 Player");
-		setBounds(100, 100, 739, 443);
+		setBounds(100, 100, 904, 691);
 		getContentPane().setLayout(null);
 		
 		JButton btnPlay = new JButton("재생");
 		btnPlay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {	
 				seconds = 0;
+				seq = 0;
+				
 				showInformation(); // 가사 보이기
+				listInterval.setSelectedIndex(seq);
+				
 				new Timer().schedule(task, 0, 1000);
+				
+				new Timer().schedule(taskInterval, 0, 1000);
 				
 				musicQ();
 			}
@@ -196,6 +217,7 @@ public class WinMp3Player extends JDialog {
 				int idx = listMp3.getSelectedIndex();
 				listMp3.setSelectedIndex(idx-1);	
 				seconds = 0;
+				seq = 0;
 				showInformation(); // 가사 보이기
 				musicQ();
 			}
@@ -209,6 +231,7 @@ public class WinMp3Player extends JDialog {
 				int idx = listMp3.getSelectedIndex();
 				listMp3.setSelectedIndex(idx+1);	
 				seconds = 0;
+				seq = 0;
 				showInformation(); // 가사 보이기
 				musicQ();
 			}
@@ -273,16 +296,69 @@ public class WinMp3Player extends JDialog {
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane_1.setBounds(359, 249, 352, 145);
+		scrollPane_1.setBounds(359, 249, 352, 333);
 		getContentPane().add(scrollPane_1);
 		
-		taLyrics = new JTextArea();
-		taLyrics.setLineWrap(true);
+		taLyrics = new JList();
 		scrollPane_1.setViewportView(taLyrics);
 		
 		lblSeconds = new JLabel("현재초/전체초");
 		lblSeconds.setBounds(579, 156, 97, 15);
 		getContentPane().add(lblSeconds);
+		
+		lblLyrics = new JLabel("New label");
+		lblLyrics.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLyrics.setFont(new Font("굴림", Font.BOLD, 30));
+		lblLyrics.setBounds(0, 592, 699, 50);
+		getContentPane().add(lblLyrics);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(772, 249, 104, 333);
+		getContentPane().add(scrollPane_2);
+		
+		model = new DefaultListModel();
+		listInterval = new JList(model);
+		
+		scrollPane_2.setViewportView(listInterval);
+		
+		JButton btnAddSeconds = new JButton("시간추가");
+		btnAddSeconds.addActionListener(new ActionListener() {
+			private int oldSeconds;
+
+			public void actionPerformed(ActionEvent e) {
+				int nowSeconds = seconds;
+				model.addElement(nowSeconds - oldSeconds);	
+				oldSeconds = nowSeconds;				
+			}
+		});
+		btnAddSeconds.setBounds(772, 216, 97, 23);
+		getContentPane().add(btnAddSeconds);
+		
+		JButton btnInsertInterval = new JButton("테이블에 추가");
+		btnInsertInterval.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sqlDB","root","1234");						
+					Statement stmt = con.createStatement();			
+					
+					String temp = "";
+					for(int i=0;i<model.getSize();i++)
+						temp = temp + model.get(i) + ",";
+					
+					String sql = "insert into lyricsTBL values('";
+					sql = sql + listMp3.getSelectedValue() + "','";
+					sql = sql + temp + "')";
+					stmt.executeUpdate(sql);
+					
+				} catch (ClassNotFoundException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnInsertInterval.setBounds(742, 147, 127, 59);
+		getContentPane().add(btnInsertInterval);
 	}
 	
 	protected void showInformation() {
@@ -307,8 +383,31 @@ public class WinMp3Player extends JDialog {
 //            System.out.println("Year : " + year);
 //            System.out.println("Genre : " + genre);
 //            System.out.println("가사 : " + lyrics);
-            taLyrics.setText(lyrics);
-            taLyrics.setCaretPosition(0);
+            
+            String strLyrics[] = lyrics.split("\n");
+            taLyrics.setListData(strLyrics);
+            taLyrics.setSelectedIndex(0);
+            
+            try {
+    			Class.forName("com.mysql.cj.jdbc.Driver");
+    			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sqlDB","root","1234");						
+    			Statement stmt = con.createStatement();			
+    			
+    			String sql = "select intervalTimes from lyricsTBL where title='" + listMp3.getSelectedValue() + "'";
+    			System.out.println(sql);
+    			ResultSet rs = stmt.executeQuery(sql);    			
+    			
+    			if(rs.next()) {
+    				String arrLyrics[] = rs.getString("intervalTimes").split(",");
+    				listInterval.setListData(arrLyrics);
+    			}
+    			
+    		} catch (ClassNotFoundException | SQLException e1) {
+    			// TODO Auto-generated catch block
+    			e1.printStackTrace();
+    		}
+            //taLyrics.setText(lyrics);
+            //taLyrics.setCaretPosition(0);
         }catch(Exception ex){
             ex.printStackTrace();
         }		
@@ -392,6 +491,7 @@ public class WinMp3Player extends JDialog {
 			progressBar.setValue(seconds*100/total);
 			if(seconds==total) {
 				seconds=0;
+				seq=0;
 				int idx = listMp3.getSelectedIndex();
 				listMp3.setSelectedIndex(idx+1);
 				showInformation();
@@ -413,6 +513,24 @@ public class WinMp3Player extends JDialog {
 //					(int)spinnerSecond.getValue();
 //			int curTotal = hour * 3600 + minute * 60 + second;
 //			progressBar.setValue(curTotal*100/total);
+		}		
+	};
+	
+	TimerTask taskInterval = new TimerTask() {
+
+		@Override
+		public void run() {			
+			listInterval.setSelectedIndex(seq);
+			taLyrics.setSelectedIndex(seq);
+			lblLyrics.setText(taLyrics.getSelectedValue().toString());	
+			int sec = Integer.parseInt(listInterval.getSelectedValue().toString());
+			try {
+				Thread.sleep(sec*1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			seq++;
 		}		
 	};
 }
